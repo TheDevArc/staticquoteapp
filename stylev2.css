@@ -219,16 +219,36 @@ header {
 
     body {
         background: white;
-        margin: 0;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     #pdf-page {
         margin: 0;
         box-shadow: none;
         width: 100%;
+        display: block;
+        position: static;
+        transform: scale(1) !important;
     }
 
+    .items-table {
+        page-break-inside: avoid;
+    }
+
+    .bottom-grid, footer, .signature-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .company-stamp {
+        max-width: 120px !important;
+        height: auto !important;
+        position: absolute !important;
+    }
+    
     @page {
+        size: A4;
         margin: 0;
 
     }
@@ -278,10 +298,6 @@ header {
     object-fit: contain;
 }
 }
-
-
-
-
 
 
 
