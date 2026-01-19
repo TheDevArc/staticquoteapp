@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I e-Com QuoteGen V.1.2.4</title>
+    <link rel="stylesheet" href="stylev2.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Roboto:wght@300;400;700&display=swap');
+    </style>
+</head>
+<body>
+    <div id="editor-panel" class="no-print">
+        <div class="editor-container">
+            <h2>I e-Com QuoteGen V.1.2.4</h2>
+            <div class="input-grid">
+
+            <div class="input-group">
+                <label class="input-label">Quote Reference No.</label>
+                <input type="text" id="in-refno" placeholder="e.g., IEC/2026/QT-101" oninput="updatePDF()">
+            </div>
+                <div class="input-group">
+                    <label class="input-label">Client Info</label>
+                    <input type="text" id="in-client" placeholder="Customer Name" oninput="updatePDF()">
+                    <input type="text" id="in-mobile" placeholder="Contact Number" oninput="updatePDF()">
+                    
+                    <label class="input-label">Kind Attention:</label>
+                    <select id="in-attn-toggle" onchange="toggleAttnUI()">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                    <div id="attn-control" style="display: none; margin-top: 10px;">
+                        <input type="text" id="in-katen" placeholder="Attention to Name" oninput="updatePDF()">
+                    </div>
+                    <textarea id="in-address" placeholder="Customer Address" oninput="updatePDF()"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Services (Ctrl + Click to select multiple)</label>
+                    <select id="in-service" multiple onchange="updatePDF()" style="height: 160px;">
+                        <option value="tp-silver">TallyPrime SILVER</option>
+                        <option value="tp-gold">TallyPrime GOLD</option>
+                        <option value="upgrade">TallyPrime SILVER to GOLD Upgrade</option>
+                        <option value="tss-silver">Tally Software Services SILVER</option>
+                        <option value="tss-gold">Tally Software Services GOLD</option>
+                        <option value="tss-auditor">Tally Software Services AUDITOR</option>
+                        <option value="cloud">Tally On Cloud</option>
+                        <option value="amc">Annual Maintenance Contract (AMC)</option>
+                        <option value="biz">Biz Analyst</option>
+                        <option value="tp-cust">TallyPrime Customisation</option>
+                        <option value="pgrbk">PagarBook</option>
+                        <option value="crdflw">CredFlow</option>
+                        <option value="bzsoft">Busy Accounting Software</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Duration</label>
+                    <select id="in-duration" onchange="updatePDF()">
+                        <option value="1">1 Year</option>
+                        <option value="2">2 Years (10% Auto Discount)</option>
+                    </select>
+                </div>
+                    <!-- Manual price conditions -->
+                <div class="input-group">
+                    <label class="input-label">Pricing Mode</label>
+
+                    <select id="in-price-mode" onchange="togglePriceUI()">
+                        <option value="auto">Auto</option>
+                        <option value="manual">Manual</option>
+                    </select>
+                </div>
+
+                <div id="manual-price-container" class="input-group" style="display: none; margin-top: 10px;">
+                    <label class="input-label">Enter Manual Price</label>
+                    <input type="number" id="in-manual-price" placeholder="0.00" oninput="updatePDF()">
+                </div>
+                    <label class="input-label">Discount:</label>
+                    <select id="in-discount-toggle" onchange="toggleDiscountUI()">
+                        <option value="disable">Disable</option>
+                        <option value="enable">Enable</option>
+                    </select>
+                    <div id="discount-controls" style="display: none; margin-top: 10px;">
+                        <input type="number" id="in-discount" placeholder="Discount Amount (Rs.)" oninput="updatePDF()">
+                    </div>
+
+                    <label class="input-label">Tax (%)</label>
+                    <input type="number" id="in-tax-percent" value="18" oninput="updatePDF()">
+                </div>
+            </div>
+            <button class="print-trigger" onclick="window.print()">Generate PDF</button>
+        </div>
+    </div>
+                
+    <div id="pdf-page">
+        <header>
+            <div class="brand">
+                <img src="assets/iecomlogo.svg" alt="logo" class="logo">
+                <div class="company-details">
+                    <strong>I e-Com</strong><br>
+                    430, Ghorpade Peth, Swargate, Pune - 411042<br>
+                    Contact: +91 9960760001 | E-mail: sales@iecom.in<br>
+                    Web: iecom.in
+                </div>
+            </div>
+            <div class="quote-meta">
+                <h1>Quotation</h1>
+                <p id="current-date"></p>
+                <p><strong>Ref: <span id="out-refno">IEC/2026/QT-101</span></strong></p>
+            </div>
+        </header>
+
+        <section class="info-split">
+            <div class="client-info">
+                <span class="label">Quoted To:</span>
+                <div class="value" id="out-client" style="font-size: 1.2rem; color: var(--primary);">Customer Name</div>
+                <div class="value" id="out-katen-wrapper" style="display: none; font-style: italic; font-weight: 400; border-left: 2px solid #ddd; padding-left: 10px; margin: 5px 0;">
+                    Attn: <span id="out-attn-name"></span>
+                </div>
+                <div class="value" id="out-address" style="font-weight: 400;">Customer Address</div> 
+                <div class="value" id="out-mobile" style="font-weight: 400;">Contact No</div>
+            </div>
+        </section>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Service Description</th>
+                    <th class="text-center">Billing</th>
+                    <th class="text-right">Price (Rs.)</th>
+                </tr>
+            </thead>
+            <tbody id="out-items-body"></tbody>
+        </table>
+
+        <div class="bottom-grid">
+            <div class="terms">
+                <p class="strong" style="color: var(--primary); margin-bottom: 5px;">Terms & Conditions</p>
+                <ul style="font-size: 11px; padding-left: 15px; color: #555;">
+                    <li>Offer valid for 15 days.</li>
+                    <li>Taxes as per Government norms.</li>
+                    <li>Technical support provided remotely.</li>
+                    <li>100% Advance payment.</li>
+                </ul>
+            </div>
+            <div class="calculation-area">
+                <div class="calc-row">
+                    <span>Subtotal:</span>
+                    <span id="out-subtotal">Rs. 0</span>
+                </div>
+                <div class="calc-row" id="discount-row" style="display: none; color: #dc2626;">
+                    <span>Total Discount:</span>
+                    <span id="out-discount-val">Rs. 0</span>
+                </div>
+                <div class="calc-row">
+                    <span>GST (<span id="out-tax-rate">18</span>%):</span>
+                    <span id="out-tax-amount">Rs. 0</span>
+                </div>
+                <div class="total-box calc-row">
+                    <span><strong>Grand Total:</strong></span>
+                    <span id="out-total">Rs. 0</span>
+                </div>
+
+                <div id="words-wrapper" style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 10px;">
+                 <span class="label" style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Amount in Words: </span>
+                 <div id="out-words" style="font-size: 1rem; font-weight: 700; color: var(--primary); margin-top: 2px; font-style: italic;">
+                 Rupees Zero Only
+                </div>
+</div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="signature-section">
+                <div class="sig-box">
+                    <img src="assets/stampimg.png" class="company-stamp" alt="">
+                    <p>For I e-Com (Authorised Signatory)</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="appv2.js"></script>
+</body>
+</html>
