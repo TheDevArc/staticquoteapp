@@ -3,7 +3,7 @@ const servicePriceList = {
     "tp-gold": { name: "TallyPrime GOLD", price: 67500, type: "Perpetual", desc: "Includes 1Yr Tally.net features & service support"},
     "upgrade": { name: "TallyPrime SILVER to GOLD Upgrade", price: 45000, type: "Perpetual", desc: "Include Upgraded Version, Support & Service For 1Yr, On-site Insttallation."},
     "tss-auditor": {name:"Tally Software Services AUDITOR", price: 6750, type: "Yearly", desc: "Renewal of Tally.Net Services For AUDITOR"},
-    "tss-silver": { name: "Tally Software Services SILVER", price: 4500, type: "Yearly", desc: "Renewal of Tally.Net Services For GOLD"},
+    "tss-silver": { name: "Tally Software Services SILVER", price: 4500, type: "Yearly", desc: "Renewal of Tally.Net Services For SILVER"},
     "tss-gold": { name: "Tally Software Services GOLD", price: 13500, type: "Yearly", desc: "Renewal of Tally.Net Services For GOLD."},
     "amc": { name: "Annual Maintenance Contract (AMC)", price: 0, type: "Yearly", desc: "Includes 1yr Techincal Support, Tally Data-backup & Repair, Tally updates"},
     "biz": { name: "Biz Analyst", price: 3300, type: "Yearly", desc: "Includes On-site Installation, For 1Yr/User = Rs. 3300+GST, Get 1+ Yr Extra on Subscription of 2Yrs and 2+ on 3 Yrs"},
