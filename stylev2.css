@@ -234,7 +234,6 @@ header {
     }
 }
 
-
 @media screen and (max-width: 768px) {
 
     #editor-panel {
@@ -266,7 +265,6 @@ header {
         overflow-x: hidden;
         background: #f3f4f6;
     }
-}
 
 .signature-section {
     page-break-inside: avoid; 
@@ -279,6 +277,9 @@ header {
     height: auto; 
     object-fit: contain;
 }
+}
+
+
 
 
 
