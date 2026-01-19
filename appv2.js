@@ -6,7 +6,7 @@ const servicePriceList = {
     "tss-silver": { name: "Tally Software Services SILVER", price: 4500, type: "Yearly", desc: "Renewal of Tally.Net Services For GOLD"},
     "tss-gold": { name: "Tally Software Services GOLD", price: 13500, type: "Yearly", desc: "Renewal of Tally.Net Services For GOLD."},
     "amc": { name: "Annual Maintenance Contract (AMC)", price: 0, type: "Yearly", desc: "Includes 1yr Techincal Support, Tally Data-backup & Repair, Tally updates"},
-    "biz": { name: "Biz Analyst", price: 2500, type: "Yearly", desc: "Includes On-site Installation, For 1Yr/User = Rs. 3300+GST, Get 1+ Yr Extra on Subscription of 2 or 3 Yrs"},
+    "biz": { name: "Biz Analyst", price: 3300, type: "Yearly", desc: "Includes On-site Installation, For 1Yr/User = Rs. 3300+GST, Get 1+ Yr Extra on Subscription of 2Yrs and 2+ on 3 Yrs"},
     "tp-cust": { name: "TallyPrime Customisation", price: 0, type: "One-Time", desc: "Custom TDL/Report development."},
     "pgrbk": { name: "PagarBook", price: 0, type: "Yearly", desc: "Staff Attendance & Payroll management."},
     "crdflw": { name: "CredFlow", price: 0, type: "Yearly", desc: "Automated payment collection for Tally."},
