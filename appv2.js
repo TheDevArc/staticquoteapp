@@ -3,10 +3,10 @@ const servicePriceList = {
     "tp-gold": { name: "TallyPrime GOLD", price: 67500, type: "Perpetual", desc: "Includes 1Yr Tally.net features & service support"},
     "upgrade": { name: "TallyPrime SILVER to GOLD Upgrade", price: 45000, type: "Perpetual", desc: "Include Upgraded Version, Support & Service For 1Yr, On-site Insttallation."},
     "tss-auditor": {name:"Tally Software Services AUDITOR", price: 6750, type: "Yearly", desc: "Renewal of Tally.Net Services For AUDITOR"},
-    "tss-silver": { name: "Tally Software Services SILVER", price: 4500, type: "Yearly", desc: "Renewal of Tally.Net Services For SILVER"},
+    "tss-silver": { name: "Tally Software Services SILVER", price: 4500, type: "Yearly", desc: "Renewal of Tally.Net Services For GOLD"},
     "tss-gold": { name: "Tally Software Services GOLD", price: 13500, type: "Yearly", desc: "Renewal of Tally.Net Services For GOLD."},
     "amc": { name: "Annual Maintenance Contract (AMC)", price: 0, type: "Yearly", desc: "Includes 1yr Techincal Support, Tally Data-backup & Repair, Tally updates"},
-    "biz": { name: "Biz Analyst", price: 3300, type: "Yearly", desc: "Includes On-site Installation, For 1Yr/User = Rs. 3300+GST, Get 1+ Yr Extra on Subscription of 2Yrs and 2+ on 3 Yrs"},
+    "biz": { name: "Biz Analyst", price: 2500, type: "Yearly", desc: "Includes On-site Installation, For 1Yr/User = Rs. 3300+GST, Get 1+ Yr Extra on Subscription of 2 or 3 Yrs"},
     "tp-cust": { name: "TallyPrime Customisation", price: 0, type: "One-Time", desc: "Custom TDL/Report development."},
     "pgrbk": { name: "PagarBook", price: 0, type: "Yearly", desc: "Staff Attendance & Payroll management."},
     "crdflw": { name: "CredFlow", price: 0, type: "Yearly", desc: "Automated payment collection for Tally."},
@@ -36,6 +36,9 @@ function updatePDF() {
     let subtotal = 0;
     let autoDiscount = 0;
 
+     const taxPercent = parseFloat(document.getElementById('in-tax-percent').value) || 18;
+    
+
     // 3. Process Selected Services
     selectedOptions.forEach((option) => {
         const item = servicePriceList[option.value];
@@ -51,20 +54,19 @@ function updatePDF() {
                     autoDiscount += (finalPrice * 0.10);
                 }
             }
+
+            let itemGstAmount = (finalPrice * taxPercent) / 100
             
             subtotal += finalPrice;
 
             // Render Table Row with Description
             tableBody.innerHTML += `
             <tr>
-                <td>
-                    <strong>${item.name}</strong><br>
-                    <small style="color: #666; display: block; margin-top: 4px; line-height: 1.2;">
-                        ${item.desc || "Standard software service"}
-                    </small>
-                </td>
+                <td><strong>${item.name}</strong><br><small style="font-size: 10px; color: #666;">${item.desc}</small></td>
                 <td class="text-center">${item.type === 'Yearly' ? duration + ' Yr' : 'One Time'}</td>
                 <td class="text-right">Rs. ${finalPrice.toLocaleString('en-IN')}</td>
+                <td class="text-center">${taxPercent}%</td>
+                <td class="text-right">Rs. ${itemGstAmount.toLocaleString('en-IN')}</td>
             </tr>`;
         }
     });
@@ -72,8 +74,7 @@ function updatePDF() {
     // 4. Final Calculations
     const manualDiscount = isDiscountEnabled ? (parseFloat(document.getElementById('in-discount').value) || 0) : 0;
     const totalDiscount = autoDiscount + manualDiscount;
-    const taxPercent = parseFloat(document.getElementById('in-tax-percent').value) || 18;
-    
+   
     const taxableValue = Math.max(0, subtotal - totalDiscount);
     const taxAmount = (taxableValue * taxPercent) / 100;
     const grandTotal = taxableValue + taxAmount;
