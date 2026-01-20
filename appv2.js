@@ -14,15 +14,13 @@ const servicePriceList = {
     "crdflw": { name: "CredFlow", price: 10000, type: "Yearly", desc: "Automated payment collection for Tally." },
     "bzsoft": { name: "Busy Accounting Software", price: 18000, type: "Perpetual", desc: "Busy Accounting License." }
 };
-
 function updatePDF() {
-    // 1. Meta Information Sync [cite: 5, 7, 8, 9]
+    // 1. Meta Information Sync
     document.getElementById('out-refno').innerText = document.getElementById('in-refno').value || "IEC/2026/QT-101";
     document.getElementById('out-client').innerText = document.getElementById('in-client').value || "Customer Name";
     document.getElementById('out-address').innerText = document.getElementById('in-address').value || "Customer Address";
     document.getElementById('out-mobile').innerText = document.getElementById('in-mobile').value || "Contact No";
     
-    // 2. Fetch Control Inputs
     const priceMode = document.getElementById('in-price-mode').value;
     const manualPriceInput = parseFloat(document.getElementById('in-manual-price').value) || 0;
     const duration = parseInt(document.getElementById('in-duration').value) || 1;
@@ -34,36 +32,34 @@ function updatePDF() {
     const tableBody = document.getElementById('out-items-body');
 
     tableBody.innerHTML = "";
-    let subtotal = 0;
+    let totalTaxableValue = 0;
+    let totalGstAmount = 0;
+    let rawSubtotal = 0;
 
-    // 3. Process Items with Fixed Pricing Logic
+    // 2. Process Items
     selectedOptions.forEach((option) => {
         const item = servicePriceList[option.value];
         if (item) {
             let basePrice = item.price;
 
-            // price switching
+            // Manual price logic
             if (priceMode === 'manual') {
-                switch (option.value) {
-                    case 'tp-cust':
-                        basePrice = manualPriceInput;
-                        break;
-
-                    case 'amc':
-                        basePrice = manualPriceInput;
-
-                    case 'biz':
-                        basePrice = manualPriceInput;
-                    default:
-                        break;
+                if (['tp-cust', 'amc', 'biz'].includes(option.value)) {
+                    basePrice = manualPriceInput;
                 }
             }
 
             let linePrice = (item.type === "Yearly") ? basePrice * duration : basePrice;
-            let itemGst = (linePrice * taxPercent) / 100;
-            subtotal += linePrice;
+            rawSubtotal += linePrice;
 
-            // 5-Column Table Generation 
+            // Apply discount proportionally to each item for accurate GST calculation
+            let itemDiscount = isDiscountEnabled ? (globalDiscount / selectedOptions.length) : 0;
+            let itemTaxable = linePrice - itemDiscount;
+            let itemGst = (itemTaxable * taxPercent) / 100;
+
+            totalTaxableValue += itemTaxable;
+            totalGstAmount += itemGst;
+
             tableBody.innerHTML += `
             <tr>
                 <td style="width: 40%;">
@@ -78,15 +74,16 @@ function updatePDF() {
         }
     });
 
-    // 4. Calculations & Totals [cite: 19]
-    const taxableValue = subtotal - (isDiscountEnabled ? globalDiscount : 0);
-    const finalTax = (taxableValue * taxPercent) / 100;
-    const grandTotal = Math.round(taxableValue + finalTax);
+    // 3. Final Calculations
+    const grandTotal = Math.round(totalTaxableValue + totalGstAmount);
 
-    // Update Output UI
-    document.getElementById('out-subtotal').innerText = `Rs. ${subtotal.toLocaleString('en-IN')}`;
-    document.getElementById('out-tax-amount').innerText = `Rs. ${finalTax.toLocaleString('en-IN')}`;
+    // 4. Update Output UI
+    // We show the "Taxable Value" as the subtotal if discount is used, or the raw total if not.
+    document.getElementById('out-subtotal').innerText = `Rs. ${totalTaxableValue.toLocaleString('en-IN')}`;
+    document.getElementById('out-tax-amount').innerText = `Rs. ${totalGstAmount.toLocaleString('en-IN')}`;
     document.getElementById('out-total').innerText = `Rs. ${grandTotal.toLocaleString('en-IN')}`;
+    document.getElementById('out-discount-val').innerText = `- Rs. ${globalDiscount.toLocaleString('en-IN')}`;
+    
     document.getElementById('out-words').innerText = "Rupees " + numberToWords(grandTotal) + " Only";
     document.getElementById('current-date').innerText = "Date: " + new Date().toLocaleDateString('en-GB');
 }
