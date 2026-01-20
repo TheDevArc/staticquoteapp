@@ -15,7 +15,7 @@ const servicePriceList = {
     "bzsoft": { name: "Busy Accounting Software", price: 18000, type: "Perpetual", desc: "Busy Accounting License." }
 };
 function updatePDF() {
-    // 1. Meta Information Sync
+   
     document.getElementById('out-refno').innerText = document.getElementById('in-refno').value || "IEC/2026/QT-101";
     document.getElementById('out-client').innerText = document.getElementById('in-client').value || "Customer Name";
     document.getElementById('out-address').innerText = document.getElementById('in-address').value || "Customer Address";
@@ -36,7 +36,7 @@ function updatePDF() {
     let totalGstAmount = 0;
     let rawSubtotal = 0;
 
-    // 2. Process Items
+   
     selectedOptions.forEach((option) => {
         const item = servicePriceList[option.value];
         if (item) {
@@ -74,11 +74,11 @@ function updatePDF() {
         }
     });
 
-    // 3. Final Calculations
+
     const grandTotal = Math.round(totalTaxableValue + totalGstAmount);
 
     // 4. Update Output UI
-    // We show the "Taxable Value" as the subtotal if discount is used, or the raw total if not.
+   
     document.getElementById('out-subtotal').innerText = `Rs. ${totalTaxableValue.toLocaleString('en-IN')}`;
     document.getElementById('out-tax-amount').innerText = `Rs. ${totalGstAmount.toLocaleString('en-IN')}`;
     document.getElementById('out-total').innerText = `Rs. ${grandTotal.toLocaleString('en-IN')}`;
@@ -102,7 +102,7 @@ function toggleDiscountUI() {
     updatePDF();
 }
 
-// Indian Number to Words Converter [cite: 21]
+
 function numberToWords(num) {
     const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
     const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
