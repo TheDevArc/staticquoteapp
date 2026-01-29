@@ -5,7 +5,6 @@ A professional, web-based quotation generator designed for **I e-Com** sales tea
 ## ✨ Key Features
 - **Smart Calculations:** Automatically handles GST (18%), manual discounts, and subtotaling.
 - **Nested Service Logic:** Pulls default service descriptions but allows for manual price overrides.
-- **Multi-Year Discounts:** Automatic 10% discount logic for 2-year subscriptions.
 - **Official Branding:** Integrated company logo, dynamic date, and manual reference number tracking.
 - **Digital Sign-off:** Includes placeholders for company stamp and authorized signature.
 - **Amount in Words:** Real-time conversion of grand totals to Indian Rupees (Words).
