@@ -57,7 +57,7 @@ function updatePDF() {
         // CUSTOM PRICE DEF
         if (
             priceMode === 'manual' &&
-            ['tp-cust', 'amc', 'biz'].includes(option.value)
+            ['tp-cust', 'amc', 'biz', 'cloud'].includes(option.value)
         ) {
             basePrice = manualPrice;
         }
