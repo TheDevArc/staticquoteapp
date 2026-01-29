@@ -16,7 +16,7 @@ function updatePDF() {
     document.getElementById('out-client').innerText = document.getElementById('in-client').value || "Customer Name";
     document.getElementById('out-address').innerText = document.getElementById('in-address').value || "Customer Address";
     document.getElementById('out-mobile').innerText = document.getElementById('in-mobile').value || "Contact No";
-    
+    document.getElementById('out-attn-name').innerText = document.getElementById('in-katen').value || "Name"
     // 2. Fetch Inputs
     const priceMode = document.getElementById('in-price-mode').value;
     const manualPriceInput = parseFloat(document.getElementById('in-manual-price').value) || 0;
@@ -46,12 +46,9 @@ function updatePDF() {
             let linePrice = (item.type === "Yearly") ? basePrice * duration : basePrice;
             rawSubtotal += linePrice;
 
-            // --- THE GST FIX ---
-            // Calculate proportional discount for THIS item
             let itemDiscountShare = isDiscountEnabled ? (globalDiscount / selectedOptions.length) : 0;
             let itemTaxableValue = linePrice - itemDiscountShare;
             
-            // Calculate GST ONLY on the discounted taxable value
             let itemGst = (itemTaxableValue * taxPercent) / 100;
             runningGstTotal += itemGst;
 
@@ -90,7 +87,6 @@ function toggleDiscountUI() {
     document.getElementById('discount-row').style.display = isVisible ? 'flex' : 'none';
     updatePDF();
 }
-
 
 function toggleAttnUI() {
     const isVisible = document.getElementById('in-attn-toggle').value === 'yes';
