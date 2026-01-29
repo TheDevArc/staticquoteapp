@@ -1,3 +1,5 @@
+// QUOTEGEN V.1.2.5 FOR I-ECOM, PUNE BY TheDevArc
+
 const servicePriceList = {
     "tp-silver": { name: "TallyPrime SILVER", price: 22500, type: "Perpetual", desc: "Includes 1Yr Tally.net features & service support, On-site Installation" },
     "tp-gold": { name: "TallyPrime GOLD", price: 67500, type: "Perpetual", desc: "Includes 1Yr Tally.net features & service support" },
@@ -10,102 +12,168 @@ const servicePriceList = {
     "tp-cust": { name: "TallyPrime Customisation", price: 0, type: "One-Time", desc: "Custom TDL/Report development." }
 };
 
+
+// UPDATE PDF FUNCTION
 function updatePDF() {
-    // 1. Sync Text Data
+
     document.getElementById('out-refno').innerText = document.getElementById('in-refno').value || "IEC/2026/QT-101";
+
     document.getElementById('out-client').innerText = document.getElementById('in-client').value || "Customer Name";
+
     document.getElementById('out-address').innerText = document.getElementById('in-address').value || "Customer Address";
+
     document.getElementById('out-mobile').innerText = document.getElementById('in-mobile').value || "Contact No";
-    document.getElementById('out-attn-name').innerText = document.getElementById('in-katen').value || "Name"
-    // 2. Fetch Inputs
+
+    document.getElementById('out-attn-name').innerText = document.getElementById('in-katen').value || "Name";
+
+// INPUTS 
+
     const priceMode = document.getElementById('in-price-mode').value;
-    const manualPriceInput = parseFloat(document.getElementById('in-manual-price').value) || 0;
+    const manualPrice = parseFloat(document.getElementById('in-manual-price').value) || 0;
     const duration = parseInt(document.getElementById('in-duration').value) || 1;
     const taxPercent = parseFloat(document.getElementById('in-tax-percent').value) || 18;
-    const isDiscountEnabled = document.getElementById('in-discount-toggle').value === 'enable';
-    const globalDiscount = parseFloat(document.getElementById('in-discount').value) || 0;
-    const selectedOptions = Array.from(document.getElementById('in-service').selectedOptions);
-    
+
+    const isDiscountEnabled =
+        document.getElementById('in-discount-toggle').value === 'enable';
+
+    const discountAmount =
+        isDiscountEnabled ? (parseFloat(document.getElementById('in-discount').value) || 0) : 0;
+
+    const selectedOptions =
+        Array.from(document.getElementById('in-service').selectedOptions);
+
     const tableBody = document.getElementById('out-items-body');
     tableBody.innerHTML = "";
 
     let rawSubtotal = 0;
-    let runningGstTotal = 0;
 
-    // 3. Process Each Service
-    selectedOptions.forEach((option) => {
+
+    selectedOptions.forEach(option => {
         const item = servicePriceList[option.value];
-        if (item) {
-            let basePrice = item.price;
+        if (!item) return;
 
-            // Handle Manual Pricing for specific items
-            if (priceMode === 'manual' && ['tp-cust', 'amc', 'biz'].includes(option.value)) {
-                basePrice = manualPriceInput;
-            }
+        let basePrice = item.price;
 
-            let linePrice = (item.type === "Yearly") ? basePrice * duration : basePrice;
-            rawSubtotal += linePrice;
-
-            let itemDiscountShare = isDiscountEnabled ? (globalDiscount / selectedOptions.length) : 0;
-            let itemTaxableValue = linePrice - itemDiscountShare;
-            
-            let itemGst = (itemTaxableValue * taxPercent) / 100;
-            runningGstTotal += itemGst;
-
-            tableBody.innerHTML += `
-            <tr>
-                <td><strong>${item.name}</strong><br><small style="font-size: 8.5px; color: #666;">${item.desc}</small></td>
-                <td class="text-center">${item.type === 'Yearly' ? duration + ' Yr' : 'One Time'}</td>
-                <td class="text-center">Rs. ${linePrice.toLocaleString('en-IN')}</td>
-                <td class="text-center">${taxPercent}%</td>
-                <td class="text-right">Rs. ${itemGst.toLocaleString('en-IN')}</td>
-            </tr>`;
+        // CUSTOM PRICE DEF
+        if (
+            priceMode === 'manual' &&
+            ['tp-cust', 'amc', 'biz'].includes(option.value)
+        ) {
+            basePrice = manualPrice;
         }
+
+        const linePrice =
+            item.type === "Yearly" ? basePrice * duration : basePrice;
+
+        rawSubtotal += linePrice;
+
+        const itemGst = (linePrice * taxPercent) / 100;
+
+        tableBody.innerHTML += `
+            <tr>
+                <td>
+                    <strong>${item.name}</strong><br>
+                    <small style="font-size:8.5px;color:#666;">${item.desc}</small>
+                </td>
+                <td class="text-center">
+                    ${item.type === 'Yearly' ? duration + ' Yr' : 'One Time'}
+                </td>
+                <td class="text-center">
+                    Rs. ${linePrice.toLocaleString('en-IN')}
+                </td>
+                <td class="text-center">${taxPercent}%</td>
+                <td class="text-right">
+                    Rs. ${itemGst.toLocaleString('en-IN')}
+                </td>
+            </tr>`;
     });
 
-    // 4. Update Final Totals
-    const finalTaxableValue = rawSubtotal - (isDiscountEnabled ? globalDiscount : 0);
-    const grandTotal = Math.round(finalTaxableValue + runningGstTotal);
-    
-    document.getElementById('out-subtotal').innerText = `Rs. ${rawSubtotal.toLocaleString('en-IN')}`;
-    document.getElementById('out-discount-val').innerText = `- Rs. ${globalDiscount.toLocaleString('en-IN')}`;
-    document.getElementById('out-tax-amount').innerText = `Rs. ${runningGstTotal.toLocaleString('en-IN')}`;
-    document.getElementById('out-total').innerText = `Rs. ${grandTotal.toLocaleString('en-IN')}`;
-    document.getElementById('out-words').innerText = "Rupees " + numberToWords(grandTotal) + " Only";
-    document.getElementById('current-date').innerText = "Date: " + new Date().toLocaleDateString('en-GB');
+    // MAIN CALCULATION
+
+    const taxableAfterDiscount = rawSubtotal - discountAmount;
+    const gstAmount = (taxableAfterDiscount * taxPercent) / 100;
+    const grandTotal = Math.round(taxableAfterDiscount + gstAmount);
+
+    // USER DISPLAY OUTPUT
+
+    document.getElementById('out-subtotal').innerText =
+        `Rs. ${rawSubtotal.toLocaleString('en-IN')}`;
+
+    document.getElementById('out-discount-val').innerText =
+        `- Rs. ${discountAmount.toLocaleString('en-IN')}`;
+
+    document.getElementById('out-tax-amount').innerText =
+        `Rs. ${gstAmount.toLocaleString('en-IN')}`;
+
+    document.getElementById('out-total').innerText =
+        `Rs. ${grandTotal.toLocaleString('en-IN')}`;
+
+    document.getElementById('out-words').innerText =
+        "Rupees " + numberToWords(grandTotal) + " Only";
+
+    document.getElementById('current-date').innerText =
+        "Date: " + new Date().toLocaleDateString('en-GB');
 }
 
+// UI TOGGLES
+
 function togglePriceUI() {
-    const isManual = document.getElementById('in-price-mode').value === 'manual';
-    document.getElementById('manual-price-container').style.display = isManual ? 'block' : 'none';
+    const isManual =
+        document.getElementById('in-price-mode').value === 'manual';
+
+    document.getElementById('manual-price-container').style.display =
+        isManual ? 'block' : 'none';
+
     updatePDF();
 }
 
 function toggleDiscountUI() {
-    const isVisible = document.getElementById('in-discount-toggle').value === 'enable';
-    document.getElementById('discount-controls').style.display = isVisible ? 'block' : 'none';
-    document.getElementById('discount-row').style.display = isVisible ? 'flex' : 'none';
+    const isVisible =
+        document.getElementById('in-discount-toggle').value === 'enable';
+
+    document.getElementById('discount-controls').style.display =
+        isVisible ? 'block' : 'none';
+
+    document.getElementById('discount-row').style.display =
+        isVisible ? 'flex' : 'none';
+
     updatePDF();
 }
 
 function toggleAttnUI() {
-    const isVisible = document.getElementById('in-attn-toggle').value === 'yes';
-    document.getElementById('attn-control').style.display = isVisible ? 'block' : 'none';
-    document.getElementById('out-katen-wrapper').style.display = isVisible ? 'block' : 'none';
+    const isVisible =
+        document.getElementById('in-attn-toggle').value === 'yes';
+
+    document.getElementById('attn-control').style.display =
+        isVisible ? 'block' : 'none';
+
+    document.getElementById('out-katen-wrapper').style.display =
+        isVisible ? 'block' : 'none';
+
     updatePDF();
 }
 
+// NUMBER TO WORDS
+
 function numberToWords(num) {
-    const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
-    const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-    let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+    const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ',
+        'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ',
+        'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+
+    const b = ['', '', 'Twenty ', 'Thirty ', 'Forty ', 'Fifty ',
+        'Sixty ', 'Seventy ', 'Eighty ', 'Ninety '];
+
+    let n = ('000000000' + num).slice(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
     if (!n) return '';
+
     let str = '';
-    str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
-    str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
-    str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
-    str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
-    str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+    str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + a[n[1][1]]) + 'Crore ' : '';
+    str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + a[n[2][1]]) + 'Lakh ' : '';
+    str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + a[n[3][1]]) + 'Thousand ' : '';
+    str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + a[n[4][1]]) + 'Hundred ' : '';
+    str += (n[5] != 0) ? ((str !== '') ? 'and ' : '') +
+        (a[Number(n[5])] || b[n[5][0]] + a[n[5][1]]) : '';
+
     return str.trim();
 }
 
